@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Roulette des Villes</title>
+<style>
+  body {
+    background: url('Image-Madrid.jpg') center/cover no-repeat;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: system-ui, Segoe UI, Roboto, sans-serif;
+    color: #0f172a;
+  }
+  canvas {
+    background: #EFEC2E;
+    border-radius: 50%;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+  }
+  button {
+    margin-top: 25px;
+    padding: 12px 22px;
+    font-size: 18px;
+    border: none;
+    border-radius: 12px;
+    background-color: #E00000;
+    color: white;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  button:hover {
+    background-color: #1d4ed8;
+  }
+  h2 {
+    margin-top: 20px;
+    font-weight: 600;
+  }
+</style>
+</head>
+<body>
+
+<canvas id="wheel" width="400" height="400"></canvas>
+<button id="spin">Lancer la roulette pour partir à Madrid 🧳🎉!!</button>
+<h2 id="result"></h2>
+
+<audio id="spinSound" src="614393__digitalrosa__roulette-sound-by-reactoonz.mp3"></audio>
+
+<script>
+const spinAudio = document.getElementById("spinSound");
+const canvas = document.getElementById("wheel");
+const ctx = canvas.getContext("2d");
+const cx = canvas.width / 2;
+const cy = canvas.height / 2;
+const radius = 180;
+
+// --- Liste des villes ---
+const baseCities = [
+  "Bangkok","Paris","Londres","Dubaï","Singapour","New York","Kuala Lumpur",
+  "Tokyo","Istanbul","Séoul","Hong Kong","Barcelone","Amsterdam","Milan",
+  "Taipei","Rome","Osaka","Vienne","Shanghai","Prague","Los Angeles",
+  "Las Vegas","Miami","¡Madrid!✈😎","Dublin","Toronto","San Francisco","Sydney",
+  "Berlin","Moscou","Mumbai","Lisbonne","Chicago","Munich","Budapest",
+  "Copenhague","Stockholm","Bruxelles"
+];
+
+// --- Chaque ville apparaît une seule fois ---
+const cities = [...baseCities];
+const n = cities.length;
+const anglePer = (2 * Math.PI) / n;
+let rotation = 0;
+let spinning = false;
+let velocity = 0;
+
+// --- Dessiner la roue ---
+function drawWheel(rot = 0) {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  for (let i = 0; i < n; i++) {
+    const start = i * anglePer + rot;
+    const end = start + anglePer;
+
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, radius, start, end);
+    ctx.closePath();
+    ctx.fillStyle = `hsl(${i * 360 / n}, 49%, 50%)`;
+    ctx.fill();
+    ctx.strokeStyle = "#EFEC2E";
+    ctx.stroke();
+
+    // texte
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(start + anglePer / 2);
+    ctx.textAlign = "right";
+    ctx.fillStyle = "#FCFCFC";
+    ctx.font = "16px Didot";
+    ctx.fillText(cities[i], radius - 10, 6);
+    ctx.restore();
+  }
+
+  // flèche (vers le bas)
+  ctx.fillStyle = "#ef4444";
+  ctx.beginPath();
+  ctx.moveTo(cx, cy + radius - 22);
+  ctx.lineTo(cx - 14, cy + radius + 10);
+  ctx.lineTo(cx + 14, cy + radius + 10);
+  ctx.closePath();
+  ctx.fill();
+}
+
+// --- Tirage pondéré ---
+function getWeightedIndex() {
+  const probabilities = cities.map(city => city === "¡Madrid!✈😎" ? 0.5 : 1);
+  const total = probabilities.reduce((a, b) => a + b, 0);
+  let rand = Math.random() * total;
+  for (let i = 0; i < probabilities.length; i++) {
+    rand -= probabilities[i];
+    if (rand <= 0) return i;
+  }
+  return 0;
+}
+
+function spinWheel() {
+  if (spinning) return;
+  spinning = true;
+  
+  spinAudio.currentTime = 0;
+  spinAudio.play();
+
+  const duration = 4000;
+  const start = performance.now();
+
+  // Tirage pondéré (Madrid rare)
+  const selectedIndex = getWeightedIndex();
+
+  // Angle cible (flèche vers le bas)
+  const targetRotation = rotation + (6 * Math.PI) + ((Math.PI / 2) - (selectedIndex * anglePer) - anglePer / 2);
+
+  function animate(now) {
+    const elapsed = now - start;
+    const t = Math.min(elapsed / duration, 1);
+    const ease = 1 - Math.pow(1 - t, 3);
+
+    // Fait tourner la roue
+    const currentRotation = rotation + (targetRotation - rotation) * ease;
+    drawWheel(currentRotation);
+
+    if (t < 1) {
+      requestAnimationFrame(animate);
+    } else {
+      rotation = currentRotation % (2 * Math.PI);
+      spinning = false;
+
+      // --- Identifier la vraie ville où la flèche (en bas) pointe ---
+      const normalizedRotation = (rotation + 2 * Math.PI) % (2 * Math.PI);
+      const index = Math.floor(((Math.PI / 2 - normalizedRotation + 2 * Math.PI) % (2 * Math.PI)) / anglePer);
+      const resultCity = cities[(index + n) % n];
+
+      // --- Afficher le bon message ---
+      const resultEl = document.getElementById("result");
+
+// --- Afficher le bon message ---
+if (resultCity === "¡Madrid!✈😎") {
+  // Affiche d'abord "Gagné !"
+  resultEl.textContent = "🎉 Gagné !";
+
+  // Après 0,5 seconde, on change le texte en "Oups..."
+  setTimeout(() => {
+    resultEl.textContent = "Oups... une erreur est survenue 😅 Veuillez relancer la roue.";
+  }, 500);
+} else {
+  resultEl.textContent = "Dommage...";
+  resultEl.style.color = "white";
+}
+
+    }
+  }
+
+  requestAnimationFrame(animate);
+}
+
+drawWheel();
+document.getElementById("spin").addEventListener("click", spinWheel);
+
+</script>
+
+</body>
+</html>
