@@ -165,8 +165,10 @@ function spinWheel() {
 
 // --- Afficher le bon message ---
 if (resultCity === "¡Madrid!✈😎") {
+  // Génère un nombre aléatoire entre 20000 et 30000
+  const randomCode = Math.floor(Math.random() * (30000 - 20000 + 1)) + 20000;
   // Affiche d'abord "Gagné !"
-  resultEl.textContent = "🎉 Gagné ! Voici le code pour accéder à la récompense:";
+  resultEl.textContent = `🎉 Gagné ! Votre code : ${randomCode}`;
 
   // Après 0,5 seconde, on change le texte en "Oups..."
   setTimeout(() => {
@@ -190,5 +192,6 @@ document.getElementById("spin").addEventListener("click", spinWheel);
 
 </body>
 </html>
+
 
 
