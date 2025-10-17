@@ -166,7 +166,7 @@ function spinWheel() {
 // --- Afficher le bon message ---
 if (resultCity === "¡Madrid!✈😎") {
   // Affiche d'abord "Gagné !"
-  resultEl.textContent = "🎉 Gagné !";
+  resultEl.textContent = "🎉 Gagné ! Voici le code pour accéder à la récompense:" random(20000, 30000);
 
   // Après 0,5 seconde, on change le texte en "Oups..."
   setTimeout(() => {
@@ -190,3 +190,4 @@ document.getElementById("spin").addEventListener("click", spinWheel);
 
 </body>
 </html>
+
