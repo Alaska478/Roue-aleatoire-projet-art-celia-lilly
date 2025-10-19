@@ -173,7 +173,7 @@ if (resultCity === "¡Madrid!✈😎") {
   // Après 0,5 seconde, on change le texte en "Oups..."
   setTimeout(() => {
     resultEl.textContent = "Oups... une erreur est survenue 😅 Veuillez relancer la roue.";
-  }, 500);
+  }, 1000);
 } else {
   resultEl.textContent = "Dommage...";
   resultEl.style.color = "white";
@@ -192,6 +192,7 @@ document.getElementById("spin").addEventListener("click", spinWheel);
 
 </body>
 </html>
+
 
 
 
