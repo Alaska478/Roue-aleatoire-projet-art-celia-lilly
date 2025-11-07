@@ -170,10 +170,10 @@ if (resultCity === "¡Madrid!✈😎") {
   // Affiche d'abord "Gagné !"
   resultEl.textContent = `🎉 Gagné ! Votre code : ${randomCode}`;
 
-  // Après 0,5 seconde, on change le texte en "Oups..."
+  // Après 1,5 seconde, on change le texte en "Oups..."
   setTimeout(() => {
     resultEl.textContent = "Oups... une erreur est survenue 😅 Veuillez relancer la roue.";
-  }, 1000);
+  }, 1500);
 } else {
   resultEl.textContent = "Dommage...";
   resultEl.style.color = "white";
@@ -192,6 +192,7 @@ document.getElementById("spin").addEventListener("click", spinWheel);
 
 </body>
 </html>
+
 
 
 
